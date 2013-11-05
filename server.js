@@ -5,7 +5,7 @@ var http = require('http');
 var sockjs = require('sockjs');
 var Hapi = require('hapi');
 
-var port = process.env.port || 9999;
+var port = process.env.PORT || 9999;
 
 // 1. Echo sockjs server
 var sockjs_opts = {sockjs_url: "http://cdn.sockjs.org/sockjs-0.3.min.js"};
