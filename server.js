@@ -5,7 +5,6 @@ var http = require('http');
 var sockjs = require('sockjs');
 var Hapi = require('hapi');
 
-var port = process.env.PORT || 9999;
 
 // 1. Echo sockjs server
 var sockjs_opts = {sockjs_url: "http://cdn.sockjs.org/sockjs-0.3.min.js"};
@@ -27,7 +26,9 @@ function sendMessage(message){
 }
 
 
-var hapi_server = Hapi.createServer('0.0.0.0', port);
+var hapi_server = Hapi.createServer('0.0.0.0');
+hapi_server._port = process.env.port | 9999;
+
 
 hapi_server.route({
     method: 'GET',
@@ -37,7 +38,7 @@ hapi_server.route({
     }
 });
 
-//sockjs_echo.installHandlers(hapi_server.listener, {prefix:'/echo'});
+sockjs_echo.installHandlers(hapi_server.listener, {prefix:'/echo'});
 
 console.log(' [*] Listening on 0.0.0.0:9999' );
 hapi_server.start();
