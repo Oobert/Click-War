@@ -27,7 +27,10 @@ function sendMessage(message){
 
 
 var hapi_server = Hapi.createServer('0.0.0.0');
-hapi_server._port = process.env.port | 9999;
+if (process.env.port)
+    hapi_server._port = process.env.port
+else
+    hapi_server._port = 9999;
 
 
 hapi_server.route({
