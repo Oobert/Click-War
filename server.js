@@ -37,9 +37,9 @@ hapi_server.route({
     }
 });
 
-sockjs_echo.installHandlers(hapi_server.listener, {prefix:'/echo'});
+//sockjs_echo.installHandlers(hapi_server.listener, {prefix:'/echo'});
 
 console.log(' [*] Listening on 0.0.0.0:9999' );
-hapi_server.start()
+hapi_server.start();
 
 
