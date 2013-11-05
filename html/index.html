@@ -1,0 +1,73 @@
+<!doctype html>
+<html><head>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
+    <style>
+        body {
+            padding: 0;
+        }
+
+        .grid {
+            border: 1px solid #ccc;
+            border-width: 1px 0 0 1px;
+        }
+
+        .grid div {
+            border: 1px solid #ccc;
+            border-width: 0 1px 1px 0;
+            float: left;
+        }
+    </style>
+</head><body lang="en">
+Color: <input id="playerColor" type="text" value="#444444"  />
+<div id="board" class="grid" style="width:1050px; height: 750px"></div>
+
+
+<script>
+
+    function createGrid(size) {
+        var ratioW = Math.floor($('#board').width()/size),
+            ratioH = Math.floor($('#board').height()/size);
+
+        var parent = $('#board');
+
+        for (var i = 0; i < ratioH; i++) {
+            for(var p = 0; p < ratioW; p++){
+                $('<div />', {
+                    width: size - 1,
+                    height: size - 1,
+                    id: i + '_' + p,
+                    class: 'cell'
+                }).appendTo(parent);
+            }
+        }
+    }
+
+    createGrid(15);
+
+    $('.cell').on('click', function (e){
+
+        console.log(e);
+        var color = $("#playerColor").val();
+        $('#' + e.target.id).css("background-color", color);
+
+        sockjs.send(JSON.stringify({tile: e.target.id, color: color}));
+
+    });
+
+    var sockjs_url = '/echo';
+    var sockjs = new SockJS(sockjs_url);
+
+    sockjs.onopen    = function()  {console.log('opened')};
+    sockjs.onmessage = function(e) {
+
+        console.log('hi: ' + e.data);
+        var data = JSON.parse(e.data);
+        $('#' + data.tile).css("background-color", data.color);
+
+    };
+    sockjs.onclose   = function()  {console.log('closed')};
+
+
+</script>
+</body></html>
