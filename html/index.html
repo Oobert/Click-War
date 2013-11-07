@@ -46,8 +46,6 @@ Color: <input id="playerColor" type="text" value="#444444"  />
     createGrid(15);
 
     $('.cell').on('click', function (e){
-
-        console.log(e);
         var color = $("#playerColor").val();
         $('#' + e.target.id).css("background-color", color);
 
@@ -61,13 +59,30 @@ Color: <input id="playerColor" type="text" value="#444444"  />
     sockjs.onopen    = function()  {console.log('opened')};
     sockjs.onmessage = function(e) {
 
-        console.log('hi: ' + e.data);
         var data = JSON.parse(e.data);
-        $('#' + data.tile).css("background-color", data.color);
-
+        if (data.board){
+            for (var property in data.board) {
+                if (data.board.hasOwnProperty(property)) {
+                    $('#' + property).css("background-color", data.board[property]);
+                }
+            }
+        }
+        else{
+            $('#' + data.move.tile).css("background-color", data.move.color);
+        }
     };
     sockjs.onclose   = function()  {console.log('closed')};
 
 
+    function cheat(){
+        var ratioW = Math.floor($('#board').width()/15),
+                ratioH = Math.floor($('#board').height()/15);
+
+        for (var i = 0; i < ratioH; i++) {
+            for(var p = 0; p < ratioW; p++){
+                $('#' + i + '_' + p).click();
+            }
+        }
+    }
 </script>
 </body></html>
