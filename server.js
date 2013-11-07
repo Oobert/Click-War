@@ -28,7 +28,7 @@ function sendMessage(message){
 
     for(var x = 0; x < connections.length; x++)
     {
-        connections[x].write(JSON.stringify({move: message}));
+        connections[x].write(JSON.stringify({move: move}));
     }
 }
 
