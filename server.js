@@ -4,31 +4,42 @@
 var http = require('http');
 var sockjs = require('sockjs');
 var Hapi = require('hapi');
+var levelup = require('levelup');
 
+var db = levelup('./db');
 
-// 1. Echo sockjs server
 var sockjs_opts = {sockjs_url: "http://cdn.sockjs.org/sockjs-0.3.min.js"};
 
 var connections = [];
-var board = {};
-
+var boardPrefix =  'board';
 
 var sockjs_echo = sockjs.createServer(sockjs_opts);
+
 sockjs_echo.on('connection', function(conn) {
     conn.on('data', sendMessage);
     connections.push(conn);
 
-    conn.write(JSON.stringify({board: board}));
+
+    db.createReadStream({
+        start : boardPrefix,
+        end   : boardPrefix + '\xFF'
+    })
+    .on('data', function (data) {
+        conn.write(JSON.stringify(data));
+    });
 });
 
 function sendMessage(message){
 
     var move = JSON.parse(message);
-    board[move.tile] = move.color;
+    move.key = boardPrefix + move.key;
+    db.put(move.key, move.value, function (err) {
+        if (err) return console.log('Ooops!', err)
+    });
 
     for(var x = 0; x < connections.length; x++)
     {
-        connections[x].write(JSON.stringify({move: move}));
+        connections[x].write(JSON.stringify(move));
     }
 }
 
@@ -51,5 +62,3 @@ hapi_server.route({
 sockjs_echo.installHandlers(hapi_server.listener, {prefix:'/echo'});
 
 hapi_server.start();
-
-
