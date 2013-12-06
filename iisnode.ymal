@@ -1,4 +1,0 @@
-node_env: production
-loggingEnabled: true
-logDirectory: iisnode
-devErrorsEnabled: true
