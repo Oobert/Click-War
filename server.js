@@ -17,25 +17,37 @@ var sockjs_echo = sockjs.createServer(sockjs_opts);
 
 sockjs_echo.on('connection', function(conn) {
     conn.on('data', sendMessage);
+    conn.on('close', function() {
+        for(var x = connections.length - 1; x >= 0 ; x--)
+        {
+            if (conn.id == connections[x].id)
+            {
+                connections.splice(x, 1);
+            }
+        }
+    });
     connections.push(conn);
 
+    sendBoardTo(conn);
+});
+
+function sendBoardTo(conn) {
 
     db.createReadStream({
-        start : boardPrefix,
-        end   : boardPrefix + '\xFF'
+        start: boardPrefix,
+        end: boardPrefix + '\xFF'
     })
-    .on('data', function (data) {
-        conn.write(JSON.stringify(data));
-    });
-});
+        .on('data', function (data) {
+            conn.write(JSON.stringify(data));
+        });
+}
 
 function sendMessage(message){
 
     var move = JSON.parse(message);
     move.key = boardPrefix + move.key;
-    db.put(move.key, move.value, function (err) {
-        if (err) return console.log('Ooops!', err)
-    });
+    db.put(move.key, move.value, logError);
+
 
     for(var x = 0; x < connections.length; x++)
     {
@@ -44,11 +56,21 @@ function sendMessage(message){
 }
 
 
-var hapi_server = Hapi.createServer('0.0.0.0');
-if (process.env.port)
-    hapi_server._port = process.env.port
-else
-    hapi_server._port = 9999;
+function logError(err)
+{
+    if (err) console.log('Ooops!', err);
+}
+
+
+
+
+
+
+
+
+
+var port = process.env.port | 9999;
+var hapi_server = Hapi.createServer('0.0.0.0', port);
 
 
 hapi_server.route({
