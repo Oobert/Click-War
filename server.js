@@ -48,7 +48,7 @@ function logError(err){
 
 
 
-var port = process.env.port | 9999;
+var port = parseInt(process.env.port) || 9999;
 var hapi_server = Hapi.createServer('0.0.0.0', port);
 
 
