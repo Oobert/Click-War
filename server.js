@@ -1,7 +1,7 @@
-var http = require('http');
 var sockjs = require('sockjs');
 var Hapi = require('hapi');
 var levelup = require('levelup');
+var fs = require('fs');
 
 
 var db = levelup('./db');
@@ -47,9 +47,14 @@ function logError(err){
 }
 
 
-
+var options = {
+    tls: {
+        key: fs.readFileSync('key.pem'),
+        cert: fs.readFileSync('cert.pem')
+    }
+};
 var port = parseInt(process.env.port) || 9999;
-var hapi_server = Hapi.createServer('0.0.0.0', port);
+var hapi_server = Hapi.createServer( '0.0.0.0', port);
 
 
 hapi_server.route({
