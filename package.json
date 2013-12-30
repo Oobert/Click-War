@@ -8,7 +8,7 @@
   "description": "nodejs + websocks game",
   "main": "server.js",
   "dependencies": {
-    "hapi": "~1.16.1",
+    "hapi": "~1.20.0",
     "leveldown": "~0.9.2",
     "sockjs": "~0.3.8",
     "levelup": "~0.17.0"
