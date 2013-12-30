@@ -57,13 +57,74 @@ var port = parseInt(process.env.port) || 9999;
 var hapi_server = Hapi.createServer( '0.0.0.0', port);
 
 
-hapi_server.route({
-    method: 'GET',
-    path: '/{path*}',
-    handler: {
-        directory: { path: './html', listing: false, index: true }
+var internals = {};
+
+internals.users = {
+    john: {
+        id: 'john',
+        password: 'password',
+        name: 'John Doe'
     }
-});
+};
+
+internals.login = function (request, reply) {
+
+    if (request.auth.isAuthenticated) {
+        return reply.redirect('/');
+    }
+
+    var message = '';
+    var account = null;
+
+    if (request.method === 'post') {
+
+        if (!request.payload.username ||
+            !request.payload.password) {
+
+            message = 'Missing username or password';
+        }
+        else {
+            account = internals.users[request.payload.username];
+            if (!account ||
+                account.password !== request.payload.password) {
+
+                message = 'Invalid username or password';
+            }
+        }
+    }
+
+    if (request.method === 'get' ||
+        message) {
+
+        return reply('<html><head><title>Login page</title></head><body>' + (message ? '<h3>' + message + '</h3><br/>' : '') + '<form method="post" action="/login">Username: <input type="text" name="username"><br>Password: <input type="password" name="password"><br/><input type="submit" value="Login"></form></body></html>');
+    }
+
+    request.auth.session.set(account);
+    return reply.redirect('/');
+};
+
+internals.logout = function (request, reply) {
+
+    request.auth.session.clear();
+    return reply.redirect('/');
+};
+
+var hapiConfig = {
+    auth: {
+        scheme: 'cookie',
+        password: 'secret',
+        cookie: 'sid',
+        redirectTo: '/login',
+        isSecure: false
+    }
+};
+
+
+hapi_server.route([
+    { method: 'GET', path: '/', handler: { file: './html/index.html' } },
+    { method: '*', path: '/login', config: { handler: internals.login, auth: { mode: 'try' } } },
+    { method: 'GET', path: '/logout', config: { handler: internals.logout, auth: true } }
+]);
 
 sockjsServer.installHandlers(hapi_server.listener, {prefix:'/echo'});
 
