@@ -1,7 +1,7 @@
 <!doctype html>
 <html><head>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-    <script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="//d1fxtkz8shb9d2.cloudfront.net/sockjs-0.3.js"></script>
     <style>
         body {
             padding: 0;
@@ -22,6 +22,12 @@
 Color: <input id="playerColor" type="text" value="#444444"  />
 <div id="board" class="grid" style="width:1050px; height: 750px"></div>
 
+
+<form method="post" action="/login">
+    Username: <input type="text" name="username"><br>
+    Password: <input type="password" name="password"><br/>
+    <input type="submit" value="Login">
+</form></body></html>
 
 <script>
 

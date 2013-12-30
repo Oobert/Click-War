@@ -47,14 +47,6 @@ function logError(err){
 }
 
 
-var options = {
-    tls: {
-        key: fs.readFileSync('key.pem'),
-        cert: fs.readFileSync('cert.pem')
-    }
-};
-var port = parseInt(process.env.port) || 9999;
-var hapi_server = Hapi.createServer( '0.0.0.0', port);
 
 
 var internals = {};
@@ -93,12 +85,6 @@ internals.login = function (request, reply) {
         }
     }
 
-    if (request.method === 'get' ||
-        message) {
-
-        return reply('<html><head><title>Login page</title></head><body>' + (message ? '<h3>' + message + '</h3><br/>' : '') + '<form method="post" action="/login">Username: <input type="text" name="username"><br>Password: <input type="password" name="password"><br/><input type="submit" value="Login"></form></body></html>');
-    }
-
     request.auth.session.set(account);
     return reply.redirect('/');
 };
@@ -117,12 +103,18 @@ var hapiConfig = {
         redirectTo: '/login',
         isSecure: false
     }
+    //,tls: {
+    //    key: fs.readFileSync('key.pem'),
+    //    cert: fs.readFileSync('cert.pem')
+    //}
 };
 
+var port = parseInt(process.env.port) || 9999;
+var hapi_server = Hapi.createServer(hapiConfig, '0.0.0.0', port);
 
 hapi_server.route([
     { method: 'GET', path: '/', handler: { file: './html/index.html' } },
-    { method: '*', path: '/login', config: { handler: internals.login, auth: { mode: 'try' } } },
+    { method: 'POST', path: '/login', config: { handler: internals.login, auth: { mode: 'try' } } },
     { method: 'GET', path: '/logout', config: { handler: internals.logout, auth: true } }
 ]);
 
